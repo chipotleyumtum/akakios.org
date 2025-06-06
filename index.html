@@ -94,7 +94,80 @@
         font-weight: bold;
         font-family: Arial, sans-serif;
         text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
-      }      /* Optimized Interactive HD Text Style with Performance Improvements */
+      }
+
+      /* Tesla Coil Structure */
+      .tesla-coil {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 5;
+        pointer-events: none;
+      }
+      
+      .coil-base {
+        width: 80px;
+        height: 30px;
+        background: linear-gradient(to bottom, #444, #222);
+        border: 2px solid #666;
+        border-radius: 8px;
+        position: relative;
+      }
+      
+      .coil-base::before {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: 10px;
+        right: 10px;
+        height: 8px;
+        background: linear-gradient(to right, #888, #555, #888);
+        border-radius: 4px;
+      }
+      
+      .coil-tower {
+        width: 12px;
+        height: 120px;
+        background: linear-gradient(to right, #666, #444, #666);
+        border: 1px solid #888;
+        margin: -2px auto 0;
+        position: relative;
+      }
+      
+      .coil-tower::before,
+      .coil-tower::after {
+        content: '';
+        position: absolute;
+        left: -8px;
+        right: -8px;
+        height: 3px;
+        background: linear-gradient(to right, #888, #555, #888);
+        border-radius: 2px;
+      }
+      
+      .coil-tower::before {
+        top: 30%;
+      }
+      
+      .coil-tower::after {
+        top: 60%;
+      }
+      
+      .coil-top {
+        width: 24px;
+        height: 24px;
+        background: radial-gradient(circle at 30% 30%, #aaa, #666, #333);
+        border: 2px solid #888;
+        border-radius: 50%;
+        margin: -2px auto;
+        position: relative;
+        box-shadow: 
+          0 0 10px rgba(100, 200, 255, 0.5),
+          inset 2px 2px 4px rgba(255, 255, 255, 0.3);
+      }
+      
+      /* Optimized Interactive HD Text Style with Performance Improvements */
       h1 {
         font-family: 'Poppins', sans-serif;
         font-weight: 600;
@@ -182,10 +255,8 @@
           opacity: 1;
           transform: scale(1.01);
         }
-      }
-
-      /* Canvas optimization */
-      #lightning-canvas {
+      }      /* Tesla Canvas optimization */
+      #tesla-canvas {
         position: fixed;
         top: 0;
         left: 0;
@@ -199,7 +270,10 @@
       
       /* Performance optimization for low-end devices */
       @media (max-width: 768px), (pointer: coarse) {
-        #lightning-canvas {
+        #tesla-canvas {
+          display: none;
+        }
+        .tesla-coil {
           display: none;
         }
         h1 {
@@ -212,42 +286,51 @@
       }
     </style>
   </head>  <body>
+    <!-- Tesla Coil Structure -->
+    <div class="tesla-coil">
+      <div class="coil-base"></div>
+      <div class="coil-tower"></div>
+      <div class="coil-top"></div>
+    </div>
+    
     <h1>Akakios</h1>
     <div class="coming-soon">Coming Soon</div>
-    <canvas id="lightning-canvas"></canvas>
+    <canvas id="tesla-canvas"></canvas>
     <!-- custom cursor icon -->
     <div id="cursor-icon"></div>    <script>
-      // Performance and Security Optimized Lightning Effects
+      // Performance Optimized Tesla Coil Effects
       (function() {
         'use strict';
         
-        // Performance monitoring and throttling
-        const PERFORMANCE_CONFIG = {
-          maxFPS: 60,
-          maxSegments: 15, // Reduced from 25
-          maxBursts: 3, // Limit concurrent bursts
-          minDistForTrail: 15, // Increased to reduce calculations
-          adaptiveQuality: true,
-          lowEndDeviceThreshold: 4 // GB RAM threshold
+        // Lightweight performance config for Tesla coil
+        const TESLA_CONFIG = {
+          maxFPS: 45, // Reduced for better performance
+          maxArcs: 5, // Limit concurrent electricity arcs
+          arcLifetime: 0.8, // Seconds each arc lasts
+          minDistanceForArc: 50, // Minimum distance to create arc
+          maxArcDistance: 400, // Maximum arc reach
+          sparkCount: 3, // Sparks per arc
+          updateInterval: 100 // Milliseconds between arc updates
         };
         
-        // Detect low-end devices and reduce effects
+        // Detect low-end devices
         const isLowEndDevice = navigator.hardwareConcurrency <= 2 || 
-                              (navigator.deviceMemory && navigator.deviceMemory < PERFORMANCE_CONFIG.lowEndDeviceThreshold);
+                              (navigator.deviceMemory && navigator.deviceMemory < TESLA_CONFIG.lowEndDeviceThreshold);
         
         if (isLowEndDevice) {
-          PERFORMANCE_CONFIG.maxSegments = 8;
-          PERFORMANCE_CONFIG.maxBursts = 2;
-          PERFORMANCE_CONFIG.maxFPS = 30;
-          PERFORMANCE_CONFIG.minDistForTrail = 25;
+          TESLA_CONFIG.maxFPS = 30;
+          TESLA_CONFIG.maxArcs = 3;
+          TESLA_CONFIG.sparkCount = 2;
+          TESLA_CONFIG.updateInterval = 150;
         }
         
-        // Secure DOM element references
-        const canvas = document.getElementById('lightning-canvas');
+        // Secure DOM references
+        const canvas = document.getElementById('tesla-canvas');
         const cursorIcon = document.getElementById('cursor-icon');
         const h1 = document.querySelector('h1');
+        const teslaCoil = document.querySelector('.tesla-coil');
         
-        if (!canvas || !cursorIcon || !h1) {
+        if (!canvas || !cursorIcon || !h1 || !teslaCoil) {
           console.warn('Required elements not found');
           return;
         }
@@ -255,36 +338,28 @@
         const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
         let { width, height } = updateCanvasSize();
         
-        // Optimized state management
+        // Tesla coil position (fixed at bottom center)
+        const teslaTop = {
+          x: width / 2,
+          y: height - 60 // Position above the coil visual
+        };
+        
+        // Mouse and arc state
         let mouseX = width / 2;
         let mouseY = height / 2;
-        let lastMouseX = mouseX;
-        let lastMouseY = mouseY;
-        let isMouseMoving = false;
-        let lastMoveTime = 0;
-        
-        // Throttled arrays with automatic cleanup
-        const lightningSegments = [];
-        const lightningBursts = [];
-        let lastTrailPoint = { x: mouseX, y: mouseY };
+        let electricArcs = [];
+        let lastArcTime = 0;
         
         // Performance tracking
-        let frameCount = 0;
         let lastFrameTime = 0;
-        let actualFPS = 60;
-        const fpsInterval = 1000 / PERFORMANCE_CONFIG.maxFPS;
+        const fpsInterval = 1000 / TESLA_CONFIG.maxFPS;
         
-        // Dynamic color system - optimized
+        // Dynamic color system
         let colorPhase = 0;
         let lastColorChange = 0;
-        const COLOR_CHANGE_INTERVAL = 3000; // Increased interval
-        
-        // Throttled mouse movement handler
-        let mouseMoveThrottle = null;
-        const MOUSE_THROTTLE_MS = 16; // ~60fps
         
         function updateCanvasSize() {
-          const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap pixel ratio
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
           const rect = canvas.getBoundingClientRect();
           
           canvas.width = rect.width * dpr;
@@ -294,28 +369,32 @@
           canvas.style.width = rect.width + 'px';
           canvas.style.height = rect.height + 'px';
           
+          // Update tesla position
+          teslaTop.x = rect.width / 2;
+          teslaTop.y = rect.height - 60;
+          
           return { width: rect.width, height: rect.height };
         }
         
-        function throttledMouseMove(e) {
-          if (mouseMoveThrottle) return;
+        // Throttled mouse handler for better performance
+        let mouseThrottle = null;
+        function handleMouseMove(e) {
+          if (mouseThrottle) return;
           
-          mouseMoveThrottle = setTimeout(() => {
-            mouseMoveThrottle = null;
-            
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
+          mouseThrottle = setTimeout(() => {
+            mouseThrottle = null;
             mouseX = e.clientX;
             mouseY = e.clientY;
             
-            isMouseMoving = Math.abs(mouseX - lastMouseX) > 1 || Math.abs(mouseY - lastMouseY) > 1;
-            lastMoveTime = Date.now();
-            
-            // Optimized cursor position update
+            // Update cursor position
             cursorIcon.style.transform = `translate3d(${e.clientX - 10}px, ${e.clientY - 10}px, 0)`;
             
+            // Update text effects
             updateTextEffects();
-          }, MOUSE_THROTTLE_MS);
+            
+            // Create new arc if conditions are met
+            createElectricArc();
+          }, TESLA_CONFIG.updateInterval);
         }
         
         function updateTextEffects() {
@@ -340,14 +419,12 @@
         function updateDynamicColors() {
           const now = Date.now();
           
-          if (now - lastColorChange > COLOR_CHANGE_INTERVAL) {
+          if (now - lastColorChange > 3000) {
             colorPhase = Math.random();
             lastColorChange = now;
           }
           
-          // Optimized color calculations
-          const timeBasedIntensity = (Math.sin(now * 0.002) + 1) * 0.5;
-          const intensity = Math.min(timeBasedIntensity * 0.8, 1);
+          const intensity = (Math.sin(now * 0.002) + 1) * 0.4; // Reduced intensity
           
           if (colorPhase < 0.5) {
             h1.style.setProperty('--fire-intensity', intensity.toString());
@@ -358,56 +435,98 @@
           }
         }
         
-        function createLightningBurst(x, y) {
-          // Limit concurrent bursts
-          if (lightningBursts.length >= PERFORMANCE_CONFIG.maxBursts) {
-            lightningBursts.shift();
+        function createElectricArc() {
+          const now = Date.now();
+          
+          // Don't create too many arcs
+          if (electricArcs.length >= TESLA_CONFIG.maxArcs) return;
+          
+          const distance = Math.sqrt((mouseX - teslaTop.x) ** 2 + (mouseY - teslaTop.y) ** 2);
+          
+          // Only create arc if cursor is within range and not too close
+          if (distance < TESLA_CONFIG.minDistanceForArc || distance > TESLA_CONFIG.maxArcDistance) {
+            return;
           }
           
-          const burst = { x, y, particles: [], life: 1.0 };
-          const numParticles = isLowEndDevice ? 8 : 12; // Reduced particle count
+          // Create new electric arc
+          const arc = {
+            startX: teslaTop.x,
+            startY: teslaTop.y,
+            endX: mouseX,
+            endY: mouseY,
+            life: TESLA_CONFIG.arcLifetime,
+            maxLife: TESLA_CONFIG.arcLifetime,
+            branches: []
+          };
           
-          for (let i = 0; i < numParticles; i++) {
-            const angle = (Math.PI * 2 * i) / numParticles; // Even distribution
-            const length = 25 + Math.random() * 25;
-            burst.particles.push({
-              x1: x, y1: y,
-              targetX2: x + Math.cos(angle) * length,
-              targetY2: y + Math.sin(angle) * length,
-              currentX2: x, currentY2: y,
-              brightness: 0.6 + Math.random() * 0.4
+          // Create branching points for more realistic electricity
+          const numBranches = Math.min(3, Math.floor(distance / 100));
+          for (let i = 0; i < numBranches; i++) {
+            const t = (i + 1) / (numBranches + 1);
+            const branchX = arc.startX + (arc.endX - arc.startX) * t + (Math.random() - 0.5) * 30;
+            const branchY = arc.startY + (arc.endY - arc.startY) * t + (Math.random() - 0.5) * 30;
+            
+            arc.branches.push({
+              x: branchX,
+              y: branchY,
+              angle: Math.random() * Math.PI * 2,
+              length: 15 + Math.random() * 20
             });
           }
-          lightningBursts.push(burst);
+          
+          electricArcs.push(arc);
         }
         
-        function drawLightningSegment(x1, y1, x2, y2, brightness) {
-          const segmentLength = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-          if (segmentLength < 5) return; // Skip very short segments
+        function drawElectricArc(arc) {
+          const opacity = arc.life / arc.maxLife;
+          if (opacity <= 0) return;
+          
+          // Main arc from Tesla coil to cursor
+          drawLightningBolt(arc.startX, arc.startY, arc.endX, arc.endY, opacity);
+          
+          // Draw branches
+          arc.branches.forEach(branch => {
+            const endX = branch.x + Math.cos(branch.angle) * branch.length;
+            const endY = branch.y + Math.sin(branch.angle) * branch.length;
+            drawLightningBolt(branch.x, branch.y, endX, endY, opacity * 0.6);
+          });
+        }
+        
+        function drawLightningBolt(x1, y1, x2, y2, opacity) {
+          const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+          if (distance < 10) return;
           
           ctx.beginPath();
           ctx.moveTo(x1, y1);
           
-          // Simplified jagged line for performance
-          const numPoints = Math.max(2, Math.floor(segmentLength / 30));
-          for (let i = 1; i <= numPoints; i++) {
-            const t = i / numPoints;
-            let x = x1 + t * (x2 - x1);
-            let y = y1 + t * (y2 - y1);
+          // Create jagged lightning path
+          const segments = Math.max(3, Math.floor(distance / 25));
+          for (let i = 1; i <= segments; i++) {
+            const t = i / segments;
+            let x = x1 + (x2 - x1) * t;
+            let y = y1 + (y2 - y1) * t;
             
-            if (i < numPoints) {
-              const offset = Math.min(15, segmentLength * 0.2);
-              x += (Math.random() - 0.5) * offset;
-              y += (Math.random() - 0.5) * offset;
+            // Add randomness except for the end point
+            if (i < segments) {
+              const maxOffset = Math.min(15, distance * 0.15);
+              x += (Math.random() - 0.5) * maxOffset;
+              y += (Math.random() - 0.5) * maxOffset;
             }
+            
             ctx.lineTo(x, y);
           }
           
-          // Optimized lightning rendering
-          ctx.strokeStyle = `rgba(0, 229, 255, ${brightness * 0.7})`;
-          ctx.lineWidth = 1 + brightness * 2;
-          ctx.shadowColor = 'rgba(0, 229, 255, 0.8)';
-          ctx.shadowBlur = 3 + brightness * 8;
+          // Electric blue lightning
+          ctx.strokeStyle = `rgba(100, 200, 255, ${opacity * 0.9})`;
+          ctx.lineWidth = 1.5 + opacity * 2;
+          ctx.shadowColor = 'rgba(100, 200, 255, 1)';
+          ctx.shadowBlur = 5 + opacity * 10;
+          ctx.stroke();
+          
+          // Inner bright core
+          ctx.strokeStyle = `rgba(200, 230, 255, ${opacity * 0.7})`;
+          ctx.lineWidth = 0.5 + opacity;
+          ctx.shadowBlur = 2 + opacity * 5;
           ctx.stroke();
         }
         
@@ -417,116 +536,62 @@
             requestAnimationFrame(animate);
             return;
           }
-          
           lastFrameTime = currentTime;
-          frameCount++;
           
-          // Performance monitoring
-          if (frameCount % 60 === 0) {
-            actualFPS = 1000 / (currentTime - (lastFrameTime - fpsInterval * 60));
-            if (actualFPS < PERFORMANCE_CONFIG.maxFPS * 0.8) {
-              // Reduce quality if performance drops
-              PERFORMANCE_CONFIG.maxSegments = Math.max(5, PERFORMANCE_CONFIG.maxSegments - 1);
-            }
-          }
-          
-          // Clear canvas efficiently
+          // Clear canvas
           ctx.clearRect(0, 0, width, height);
           ctx.globalCompositeOperation = 'lighter';
           
-          // Lightning trail with movement detection
-          if (isMouseMoving) {
-            const distMoved = Math.sqrt((mouseX - lastTrailPoint.x) ** 2 + (mouseY - lastTrailPoint.y) ** 2);
+          // Update and draw electric arcs
+          for (let i = electricArcs.length - 1; i >= 0; i--) {
+            const arc = electricArcs[i];
+            arc.life -= 1 / 60; // Decay over time
             
-            if (distMoved > PERFORMANCE_CONFIG.minDistForTrail) {
-              lightningSegments.push({ x: mouseX, y: mouseY, life: 1.0 });
-              
-              // Maintain segment limit
-              while (lightningSegments.length > PERFORMANCE_CONFIG.maxSegments) {
-                lightningSegments.shift();
-              }
-              
-              lastTrailPoint = { x: mouseX, y: mouseY };
-            }
-          }
-          
-          // Decay segments
-          for (let i = lightningSegments.length - 1; i >= 0; i--) {
-            const segment = lightningSegments[i];
-            segment.life -= 0.05;
-            
-            if (segment.life <= 0) {
-              lightningSegments.splice(i, 1);
+            if (arc.life <= 0) {
+              electricArcs.splice(i, 1);
               continue;
             }
             
-            if (i > 0) {
-              const prevSegment = lightningSegments[i - 1];
-              drawLightningSegment(segment.x, segment.y, prevSegment.x, prevSegment.y, segment.life);
-            }
-          }
-          
-          // Lightning bursts with cleanup
-          for (let i = lightningBursts.length - 1; i >= 0; i--) {
-            const burst = lightningBursts[i];
-            burst.life -= 0.04;
-            
-            if (burst.life <= 0) {
-              lightningBursts.splice(i, 1);
-              continue;
-            }
-            
-            const progress = 1 - burst.life;
-            burst.particles.forEach(particle => {
-              particle.currentX2 = particle.x1 + (particle.targetX2 - particle.x1) * progress;
-              particle.currentY2 = particle.y1 + (particle.targetY2 - particle.y1) * progress;
-              drawLightningSegment(particle.x1, particle.y1, particle.currentX2, particle.currentY2, 
-                                  burst.life * particle.brightness);
-            });
-          }
-          
-          // Check if mouse stopped moving
-          if (Date.now() - lastMoveTime > 100) {
-            isMouseMoving = false;
+            drawElectricArc(arc);
           }
           
           ctx.globalCompositeOperation = 'source-over';
           requestAnimationFrame(animate);
         }
         
-        // Event listeners with passive option for performance
-        window.addEventListener('mousemove', throttledMouseMove, { passive: true });
+        // Event listeners
+        window.addEventListener('mousemove', handleMouseMove, { passive: true });
         
         window.addEventListener('click', (e) => {
-          createLightningBurst(e.clientX, e.clientY);
+          // Create multiple arcs on click for dramatic effect
+          for (let i = 0; i < 2; i++) {
+            setTimeout(() => createElectricArc(), i * 50);
+          }
         }, { passive: true });
         
         window.addEventListener('resize', () => {
           ({ width, height } = updateCanvasSize());
-          lastTrailPoint = { x: mouseX, y: mouseY };
         }, { passive: true });
         
-        // Cleanup for page visibility changes
+        // Cleanup on page visibility change
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) {
-            lightningSegments.length = 0;
-            lightningBursts.length = 0;
-            if (mouseMoveThrottle) {
-              clearTimeout(mouseMoveThrottle);
-              mouseMoveThrottle = null;
+            electricArcs.length = 0;
+            if (mouseThrottle) {
+              clearTimeout(mouseThrottle);
+              mouseThrottle = null;
             }
           }
         });
         
-        // Start animation
+        // Start the animation
         requestAnimationFrame(animate);
         
-        // Cleanup on beforeunload
+        // Cleanup
         window.addEventListener('beforeunload', () => {
-          lightningSegments.length = 0;
-          lightningBursts.length = 0;
-          if (mouseMoveThrottle) {
-            clearTimeout(mouseMoveThrottle);
+          electricArcs.length = 0;
+          if (mouseThrottle) {
+            clearTimeout(mouseThrottle);
           }
         });
         
