@@ -103,46 +103,47 @@
         position: relative;
         margin-bottom: 20px;
         
-        /* CSS variables for mouse position and dynamic colors */
-        --mouse-x: -9999px;
-        --mouse-y: -9999px;
-        --glow-opacity: 0;
+        /* CSS variables for mouse position and dynamic colors - START EMPTY */
+        --mouse-x: 50%;
+        --mouse-y: 50%;
         --fire-intensity: 0;
         --blue-intensity: 0;
 
-        /* Optimized gradient with fewer color stops */
+        /* Copper and blue gradients that only appear on hover */
         background-image: 
           radial-gradient(
-            circle 250px at var(--mouse-x) var(--mouse-y),
-            rgba(255, 80, 20, var(--fire-intensity)),
-            rgba(255, 120, 40, calc(var(--fire-intensity) * 0.7)) 50%,
-            transparent 75%
+            circle 200px at var(--mouse-x) var(--mouse-y),
+            rgba(255, 179, 71, var(--fire-intensity)) 0%,
+            rgba(210, 105, 30, calc(var(--fire-intensity) * 0.8)) 40%,
+            transparent 70%
           ),
           radial-gradient(
-            circle 220px at var(--mouse-x) var(--mouse-y),
-            rgba(20, 180, 255, var(--blue-intensity)),
-            rgba(100, 220, 255, calc(var(--blue-intensity) * 0.7)) 50%,
-            transparent 85%
+            circle 180px at var(--mouse-x) var(--mouse-y),
+            rgba(100, 200, 255, var(--blue-intensity)) 0%,
+            rgba(20, 180, 255, calc(var(--blue-intensity) * 0.8)) 40%,
+            transparent 70%
           );
         
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;
         
-        /* Reduced text effects for performance */
-        -webkit-text-stroke: 1px rgba(180, 180, 180, 0.8);
+        /* White outline - always visible */
+        -webkit-text-stroke: 2px rgba(255, 255, 255, 0.9);
+        
+        /* Only show glow when hovering */
         text-shadow: 
-          0 0 30px rgba(255, 80, 40, calc(var(--fire-intensity) * 0.8)),
-          0 0 40px rgba(20, 180, 255, calc(var(--blue-intensity) * 0.6));
+          0 0 20px rgba(255, 179, 71, calc(var(--fire-intensity) * 0.6)),
+          0 0 30px rgba(100, 200, 255, calc(var(--blue-intensity) * 0.6));
 
         user-select: none;
-        transition: all 0.3s ease-out;
+        transition: all 0.4s ease-out;
         
         /* Performance: Enable hardware acceleration only when needed */
         will-change: background-image;
         
-        /* Optimized animation with fewer keyframes */
-        animation: gentle-pulse 4s ease-in-out infinite;
+        /* Subtle pulse animation */
+        animation: gentle-pulse 6s ease-in-out infinite;
       }
 
       @keyframes gentle-pulse {
@@ -336,26 +337,21 @@
             h1.style.setProperty('--blue-intensity', '0');
           }
         }
-        
-        function updateDynamicColors() {
+          function updateDynamicColors() {
           const now = Date.now();
           
-          if (now - lastColorChange > COLOR_CHANGE_INTERVAL) {
-            colorPhase = Math.random();
-            lastColorChange = now;
-          }
+          // Create alternating copper and blue waves
+          const time = now * 0.003;
+          const wave1 = (Math.sin(time) + 1) * 0.5;
+          const wave2 = (Math.sin(time + Math.PI * 0.5) + 1) * 0.5;
           
-          // Optimized color calculations
-          const timeBasedIntensity = (Math.sin(now * 0.002) + 1) * 0.5;
-          const intensity = Math.min(timeBasedIntensity * 0.8, 1);
+          // Alternate between copper-dominant and blue-dominant
+          const copperIntensity = 0.7 + wave1 * 0.3;
+          const blueIntensity = 0.7 + wave2 * 0.3;
           
-          if (colorPhase < 0.5) {
-            h1.style.setProperty('--fire-intensity', intensity.toString());
-            h1.style.setProperty('--blue-intensity', (intensity * 0.3).toString());
-          } else {
-            h1.style.setProperty('--fire-intensity', (intensity * 0.3).toString());
-            h1.style.setProperty('--blue-intensity', intensity.toString());
-          }
+          // Set the intensities to create the fill effect
+          h1.style.setProperty('--fire-intensity', copperIntensity.toString());
+          h1.style.setProperty('--blue-intensity', blueIntensity.toString());
         }
         
         function createLightningBurst(x, y) {
