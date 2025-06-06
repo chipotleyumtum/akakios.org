@@ -255,8 +255,7 @@
         
         const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
         let { width, height } = updateCanvasSize();
-        
-        // Optimized state management
+          // Optimized state management
         let mouseX = width / 2;
         let mouseY = height / 2;
         let lastMouseX = mouseX;
@@ -264,10 +263,8 @@
         let isMouseMoving = false;
         let lastMoveTime = 0;
         
-        // Throttled arrays with automatic cleanup
-        const lightningSegments = [];
+        // Lightning bursts only (no cursor trail)
         const lightningBursts = [];
-        let lastTrailPoint = { x: mouseX, y: mouseY };
         
         // Performance tracking
         let frameCount = 0;
@@ -425,42 +422,9 @@
               PERFORMANCE_CONFIG.maxSegments = Math.max(5, PERFORMANCE_CONFIG.maxSegments - 1);
             }
           }
-          
-          // Clear canvas efficiently
+            // Clear canvas efficiently
           ctx.clearRect(0, 0, width, height);
           ctx.globalCompositeOperation = 'lighter';
-          
-          // Lightning trail with movement detection
-          if (isMouseMoving) {
-            const distMoved = Math.sqrt((mouseX - lastTrailPoint.x) ** 2 + (mouseY - lastTrailPoint.y) ** 2);
-            
-            if (distMoved > PERFORMANCE_CONFIG.minDistForTrail) {
-              lightningSegments.push({ x: mouseX, y: mouseY, life: 1.0 });
-              
-              // Maintain segment limit
-              while (lightningSegments.length > PERFORMANCE_CONFIG.maxSegments) {
-                lightningSegments.shift();
-              }
-              
-              lastTrailPoint = { x: mouseX, y: mouseY };
-            }
-          }
-          
-          // Decay segments
-          for (let i = lightningSegments.length - 1; i >= 0; i--) {
-            const segment = lightningSegments[i];
-            segment.life -= 0.05;
-            
-            if (segment.life <= 0) {
-              lightningSegments.splice(i, 1);
-              continue;
-            }
-            
-            if (i > 0) {
-              const prevSegment = lightningSegments[i - 1];
-              drawLightningSegment(segment.x, segment.y, prevSegment.x, prevSegment.y, segment.life);
-            }
-          }
           
           // Lightning bursts with cleanup
           for (let i = lightningBursts.length - 1; i >= 0; i--) {
@@ -480,8 +444,7 @@
                                   burst.life * particle.brightness);
             });
           }
-          
-          // Check if mouse stopped moving
+            // Check if mouse stopped moving
           if (Date.now() - lastMoveTime > 100) {
             isMouseMoving = false;
           }
@@ -496,16 +459,12 @@
         window.addEventListener('click', (e) => {
           createLightningBurst(e.clientX, e.clientY);
         }, { passive: true });
-        
-        window.addEventListener('resize', () => {
+          window.addEventListener('resize', () => {
           ({ width, height } = updateCanvasSize());
-          lastTrailPoint = { x: mouseX, y: mouseY };
         }, { passive: true });
-        
-        // Cleanup for page visibility changes
+          // Cleanup for page visibility changes
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) {
-            lightningSegments.length = 0;
             lightningBursts.length = 0;
             if (mouseMoveThrottle) {
               clearTimeout(mouseMoveThrottle);
@@ -516,10 +475,8 @@
         
         // Start animation
         requestAnimationFrame(animate);
-        
-        // Cleanup on beforeunload
+          // Cleanup on beforeunload
         window.addEventListener('beforeunload', () => {
-          lightningSegments.length = 0;
           lightningBursts.length = 0;
           if (mouseMoveThrottle) {
             clearTimeout(mouseMoveThrottle);
