@@ -3,9 +3,6 @@ document.body.classList.remove('no-js');
 (function() {
   'use strict';
 
-  const form = document.querySelector('.cta-form');
-  const emailInput = document.querySelector('#email');
-  const statusEl = document.querySelector('.form-status');
   const countdownEls = {
     days: document.querySelector('[data-unit="days"]'),
     hours: document.querySelector('[data-unit="hours"]'),
@@ -15,13 +12,6 @@ document.body.classList.remove('no-js');
 
   const targetDate = new Date('2026-03-15T15:00:00Z').getTime();
   let timerId = null;
-
-  const setStatus = (message, state) => {
-    if (!statusEl) return;
-    statusEl.textContent = message;
-    statusEl.classList.remove('success', 'error');
-    if (state) statusEl.classList.add(state);
-  };
 
   const format = (value) => String(value).padStart(2, '0');
 
@@ -36,7 +26,6 @@ document.body.classList.remove('no-js');
       countdownEls.hours.textContent = '00';
       countdownEls.minutes.textContent = '00';
       countdownEls.seconds.textContent = '00';
-      setStatus('We are live. Watch your inbox.', 'success');
       clearInterval(timerId);
       return;
     }
@@ -52,59 +41,107 @@ document.body.classList.remove('no-js');
     countdownEls.seconds.textContent = format(seconds);
   };
 
-  const validateEmail = (value) => {
-    const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return pattern.test(value);
-  };
+  // Black hole particle system
+  const initBlackHole = () => {
+    const orb = document.querySelector('.orb-core');
+    const container = document.querySelector('.orb-container');
+    if (!orb || !container) return;
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (!emailInput) return;
+    const createParticle = () => {
+      const particle = document.createElement('div');
+      particle.className = 'sucked-particle';
 
-    const email = emailInput.value.trim();
-    if (!validateEmail(email)) {
-      setStatus('Please use a valid work email.', 'error');
-      return;
-    }
+      // Random size
+      const size = Math.random() * 4 + 2;
+      particle.style.width = size + 'px';
+      particle.style.height = size + 'px';
 
-    setStatus('You are in. Expect a briefing shortly.', 'success');
-    emailInput.setAttribute('disabled', 'true');
-    const submitBtn = form?.querySelector('button');
-    if (submitBtn) {
-      submitBtn.textContent = 'Added';
-      submitBtn.setAttribute('disabled', 'true');
-    }
-  };
+      // Random starting position from edges of viewport
+      const side = Math.floor(Math.random() * 4);
+      let startX, startY;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
 
-  const initBackgroundTilt = () => {
-    const hero = document.querySelector('.hero');
-    if (!hero) return;
+      switch(side) {
+        case 0: // top
+          startX = Math.random() * vw;
+          startY = -20;
+          break;
+        case 1: // right
+          startX = vw + 20;
+          startY = Math.random() * vh;
+          break;
+        case 2: // bottom
+          startX = Math.random() * vw;
+          startY = vh + 20;
+          break;
+        case 3: // left
+          startX = -20;
+          startY = Math.random() * vh;
+          break;
+      }
 
-    const handleMove = (event) => {
-      const rect = hero.getBoundingClientRect();
-      const x = ((event.clientX - rect.left) / rect.width - 0.5) * 4;
-      const y = ((event.clientY - rect.top) / rect.height - 0.5) * 4;
-      hero.style.setProperty('--tilt-x', y.toFixed(2));
-      hero.style.setProperty('--tilt-y', x.toFixed(2));
+      particle.style.left = startX + 'px';
+      particle.style.top = startY + 'px';
+      particle.style.opacity = Math.random() * 0.5 + 0.3;
+
+      document.body.appendChild(particle);
+
+      // Get orb center position
+      const orbRect = orb.getBoundingClientRect();
+      const targetX = orbRect.left + orbRect.width / 2;
+      const targetY = orbRect.top + orbRect.height / 2;
+
+      // Animate to center
+      const duration = Math.random() * 3000 + 2000;
+      const startTime = Date.now();
+
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Ease-in curve for acceleration effect
+        const eased = progress * progress * progress;
+
+        // Spiral effect
+        const spiral = (1 - progress) * Math.sin(progress * Math.PI * 4) * 30;
+
+        const currentX = startX + (targetX - startX) * eased + spiral;
+        const currentY = startY + (targetY - startY) * eased;
+
+        // Shrink as it approaches
+        const scale = 1 - eased * 0.9;
+
+        particle.style.left = currentX + 'px';
+        particle.style.top = currentY + 'px';
+        particle.style.transform = `scale(${scale})`;
+        particle.style.opacity = (1 - eased * 0.8) * 0.6;
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          particle.remove();
+        }
+      };
+
+      requestAnimationFrame(animate);
     };
 
-    const reset = () => {
-      hero.style.setProperty('--tilt-x', '0');
-      hero.style.setProperty('--tilt-y', '0');
+    // Spawn particles at random intervals
+    const spawnParticle = () => {
+      createParticle();
+      const delay = Math.random() * 400 + 150;
+      setTimeout(spawnParticle, delay);
     };
 
-    hero.addEventListener('pointermove', handleMove, { passive: true });
-    hero.addEventListener('pointerleave', reset, { passive: true });
+    // Start spawning
+    spawnParticle();
   };
 
   try {
-    if (form) {
-      form.addEventListener('submit', handleSubmit);
-    }
-
     updateCountdown();
     timerId = window.setInterval(updateCountdown, 1000);
-    initBackgroundTilt();
+    initBlackHole();
 
     window.addEventListener('pagehide', () => {
       if (timerId) window.clearInterval(timerId);
