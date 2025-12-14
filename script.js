@@ -138,10 +138,55 @@ document.body.classList.remove('no-js');
     spawnParticle();
   };
 
+  const initSunshineSmiley = () => {
+    const overlay = document.createElement('div');
+    overlay.className = 'sunshine-smiley';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.innerHTML = `
+      <div class="sunshine-smiley__glow"></div>
+      <div class="sunshine-smiley__face">
+        <div class="sunshine-smiley__emoji">😊</div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    let hideTimeoutId = null;
+    let nextTimeoutId = null;
+
+    const showFor = (durationMs) => {
+      overlay.classList.add('is-visible');
+      if (hideTimeoutId) window.clearTimeout(hideTimeoutId);
+      hideTimeoutId = window.setTimeout(() => {
+        overlay.classList.remove('is-visible');
+      }, durationMs);
+    };
+
+    const scheduleNext = () => {
+      // “Every once in a while”: random delay between ~22–55s.
+      const minDelayMs = 22000;
+      const maxDelayMs = 55000;
+      const delay = Math.floor(minDelayMs + Math.random() * (maxDelayMs - minDelayMs));
+
+      nextTimeoutId = window.setTimeout(() => {
+        showFor(2600);
+        scheduleNext();
+      }, delay);
+    };
+
+    scheduleNext();
+
+    window.addEventListener('pagehide', () => {
+      if (hideTimeoutId) window.clearTimeout(hideTimeoutId);
+      if (nextTimeoutId) window.clearTimeout(nextTimeoutId);
+      overlay.remove();
+    }, { once: true });
+  };
+
   try {
     updateCountdown();
     timerId = window.setInterval(updateCountdown, 1000);
     initBlackHole();
+    initSunshineSmiley();
 
     window.addEventListener('pagehide', () => {
       if (timerId) window.clearInterval(timerId);
