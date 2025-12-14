@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Akakios - Coming Soon</title>
-    <meta name="description" content="Akakios - Something amazing is coming. Stay tuned.">
+    <title>Akakios Edge AI — Launching Soon</title>
+    <meta name="description" content="Akakios brings low-latency AI to the edge. Join the private preview and be the first to deploy intelligence where it matters.">
     <meta name="robots" content="index, follow">
       <meta http-equiv="Content-Security-Policy" content="
       default-src 'none';
@@ -14,7 +14,7 @@
       img-src 'self' data: https:;
       connect-src 'self';
       base-uri 'self';
-      form-action 'none';
+      form-action 'self';
       frame-ancestors 'none';
       upgrade-insecure-requests;
     ">
@@ -26,7 +26,7 @@
       <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     
     <noscript>
@@ -39,14 +39,118 @@
     </noscript>
   </head>
   <body class="no-js">
-    <main class="container" role="main">
-      <h1 class="title">Akakios</h1>
-      <p class="subtitle" role="status" aria-live="polite">Coming Soon</p>    </main>
-    
-    <div class="error-fallback" role="alert" aria-live="assertive">
-      <p>Akakios - Coming Soon</p>
+    <div class="background" aria-hidden="true">
+      <div class="circuit circuit-grid"></div>
+      <div class="circuit circuit-lines"></div>
+      <div class="circuit circuit-glow"></div>
     </div>
-    
+
+    <main class="page" role="main">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="pill">Edge AI · Private Preview</p>
+          <h1>Edge-native intelligence without the cloud drag.</h1>
+          <p class="lede">Akakios deploys optimized models directly on your edge fabric, delivering millisecond inference, resilient uptime, and sovereign data boundaries from day one.</p>
+
+          <form class="cta-form" novalidate>
+            <label class="sr-only" for="email">Work email</label>
+            <input id="email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required aria-label="Email address">
+            <button type="submit" class="primary">Join the waitlist</button>
+            <p class="form-status" role="status" aria-live="polite"></p>
+          </form>
+
+          <div class="hero-meta">
+            <div class="countdown" aria-live="polite">
+              <p class="label">Launch window</p>
+              <div class="time-grid">
+                <div class="time-pill"><span class="count" data-unit="days">00</span><span class="unit">Days</span></div>
+                <div class="time-pill"><span class="count" data-unit="hours">00</span><span class="unit">Hours</span></div>
+                <div class="time-pill"><span class="count" data-unit="minutes">00</span><span class="unit">Minutes</span></div>
+                <div class="time-pill"><span class="count" data-unit="seconds">00</span><span class="unit">Seconds</span></div>
+              </div>
+            </div>
+
+            <div class="social">
+              <p class="label">Follow the build</p>
+              <div class="social-links">
+                <a href="https://www.linkedin.com/company/akakios" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                  <span aria-hidden="true">in</span>
+                  <span class="sr-only">LinkedIn</span>
+                </a>
+                <a href="https://twitter.com/akakios" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                  <span aria-hidden="true">X</span>
+                  <span class="sr-only">Twitter</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-panel" aria-label="Edge AI preview">
+          <div class="panel-header">
+            <span class="dot live"></span>
+            <p>Edge Mesh Preview</p>
+          </div>
+          <div class="panel-body">
+            <div class="metric">
+              <p class="label">Latency</p>
+              <p class="value">4.7 ms</p>
+              <div class="meter"><span style="width: 82%"></span></div>
+            </div>
+            <div class="metric">
+              <p class="label">Edge nodes</p>
+              <p class="value">128</p>
+              <div class="chip-row">
+                <span class="chip">ARM</span><span class="chip">Jetson</span><span class="chip">x86</span>
+              </div>
+            </div>
+            <div class="metric">
+              <p class="label">Integrity</p>
+              <p class="value">Zero-trust</p>
+              <p class="sub">Encrypted models · Local inference · Signed updates</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="features" aria-label="Capabilities">
+        <div class="feature-card">
+          <p class="eyebrow">On-device inference</p>
+          <h3>Millisecond responses</h3>
+          <p>Deploy distilled models directly to gateways and sensors for deterministic latency and offline resilience.</p>
+        </div>
+        <div class="feature-card">
+          <p class="eyebrow">Zero data exhaust</p>
+          <h3>Sovereign by design</h3>
+          <p>Keep data local with sealed enclaves, differential privacy, and per-site policies managed centrally.</p>
+        </div>
+        <div class="feature-card">
+          <p class="eyebrow">Operational clarity</p>
+          <h3>Live observability</h3>
+          <p>Visualize edge health, drift detection, and rollout safety with a single control surface.</p>
+        </div>
+      </section>
+
+      <section class="secondary" aria-label="Launch details">
+        <div class="secondary-card">
+          <h4>Private preview</h4>
+          <p>We are onboarding design partners across manufacturing, energy, and logistics. Join to co-design the edge intelligence stack that fits your sites.</p>
+        </div>
+        <div class="secondary-card">
+          <h4>Instant updates</h4>
+          <p>Every signup receives a concise drop of build notes, edge benchmarks, and integration guides—no spam, just signal.</p>
+        </div>
+      </section>
+    </main>
+
+    <noscript>
+      <div class="noscript">Enable JavaScript to see the live countdown and interactive preview.</div>
+    </noscript>
+
+    <div class="error-fallback" role="alert" aria-live="assertive">
+      <p>Akakios - Launching Soon</p>
+    </div>
+
     <script src="script.js" defer></script>
   </body>
 </html>
